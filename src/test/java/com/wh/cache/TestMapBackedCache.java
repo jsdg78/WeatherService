@@ -1,128 +1,182 @@
 package com.wh.cache;
 
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.wh.cache.internal.CachedObject;
 import com.wh.cache.internal.MapBackedCache;
 
 public class TestMapBackedCache {
 
-  // For the purpose of testing basic cache operations:
-  // Thread-safe cache with default TTL (900s) and default cleanup interval (60s)
-  private static final Cache<String, String> cacheA = new MapBackedCache<String, String>();
+  private static final Logger LOG = LoggerFactory.getLogger(TestMapBackedCache.class);
 
-  // For the purpose of testing element expiration and cleanup:
-  // Thread-safe cache with very short TTL (5s) and frequent cleanup interval (1s)
-  private static final Cache<String, String> cacheB = new MapBackedCache<String, String>(5, 1);
+  // thread-safe cache with default TTL (900s) and default cleanup interval (60s)
+  private static final Cache<String, String> cache = new MapBackedCache<String, String>();
 
-  // For the purpose of testing concurrency and thread-safety:
-  // Cache backed by a non-synchronized java.util.Map
-  private static final Cache<String, String> cacheC =
-      new MapBackedCache<String, String>(new HashMap<String, CachedObject<String>>());
+  private static final int THREAD_COUNT = 5;
+  private static final int ITERATION_COUNT = 20;
 
   @Before
   public void setUp() {
-    cacheA.clear();
-    cacheB.clear();
-    cacheC.clear();
+    cache.clear();
     // Test clear()
-    Assert.assertEquals(0, cacheA.size());
-    Assert.assertEquals(0, cacheB.size());
-    Assert.assertEquals(0, cacheC.size());
+    Assert.assertEquals(0, cache.size());
   }
 
   @Test(expected = NullPointerException.class)
   public void testNullKey() {
-    cacheA.put(null, "Zero");
+    cache.put(null, "Zero");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testBlankKey() {
-    cacheA.put("", "Zero");
+    cache.put("", "Zero");
   }
 
   @Test(expected = NullPointerException.class)
   public void testNullValue() {
-    cacheA.put("0", null);
+    cache.put("0", null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testBlankValue() {
-    cacheA.put("0", "");
+    cache.put("0", "");
   }
 
   @Test
-  public void testOperations() {
+  public void testOperations() throws Exception {
     // Test put()
-    cacheA.put("1", "One");
-    Assert.assertEquals(1, cacheA.size());
-    cacheA.put("2", "Two");
-    cacheA.put("3", "Three");
-    cacheA.put("4", "Four");
-    Assert.assertEquals(4, cacheA.size());
+    cache.put("1", "One");
+    Assert.assertEquals(1, cache.size());
+    cache.put("2", "Two");
+    cache.put("3", "Three");
+    cache.put("4", "Four");
+    Assert.assertEquals(4, cache.size());
 
     // Test containsKey()
-    Assert.assertTrue(cacheA.containsKey("1"));
-    Assert.assertTrue(cacheA.containsKey("2"));
-    Assert.assertFalse(cacheA.containsKey("5"));
-    Assert.assertFalse(cacheA.containsKey("6"));
+    Assert.assertTrue(cache.containsKey("1"));
+    Assert.assertTrue(cache.containsKey("2"));
+    Assert.assertFalse(cache.containsKey("5"));
+    Assert.assertFalse(cache.containsKey("6"));
 
     // Test get()
-    Assert.assertEquals("One", cacheA.get("1"));
-    Assert.assertEquals("Two", cacheA.get("2"));
-    Assert.assertEquals("Three", cacheA.get("3"));
-    Assert.assertEquals("Four", cacheA.get("4"));
+    Assert.assertEquals("One", cache.get("1"));
+    Assert.assertEquals("Two", cache.get("2"));
+    Assert.assertEquals("Three", cache.get("3"));
+    Assert.assertEquals("Four", cache.get("4"));
 
     // Test remove()
-    String value = cacheA.remove("2");
+    String value = cache.remove("2");
     Assert.assertEquals("Two", value);
-    Assert.assertEquals(3, cacheA.size());
-    value = cacheA.remove("3");
+    Assert.assertEquals(3, cache.size());
+    value = cache.remove("3");
     Assert.assertEquals("Three", value);
-    Assert.assertEquals(2, cacheA.size());
+    Assert.assertEquals(2, cache.size());
   }
 
   @Test
   public void testExpiration() {
     try {
+      // cache with very short TTL (5s) and frequent cleanup interval (1s)
+      Cache<String, String> cache = new MapBackedCache<String, String>(5, 1);
+
       // Test cleanup()
-      cacheB.put("1", "One");
-      Thread.sleep(2000);
-      cacheB.put("2", "Two");
-      Thread.sleep(2000);
-      cacheB.put("3", "Three");
-      Thread.sleep(2000);
-      cacheB.put("4", "Four");
+      cache.put("1", "One");
+      cache.put("2", "Two");
+      Thread.sleep(6000);
+      cache.put("3", "Three");
+      cache.put("4", "Four");
 
-      // "1" should be expired by now
-      Assert.assertFalse(cacheB.containsKey("1"));
-      Assert.assertTrue(cacheB.containsKey("2"));
-      Assert.assertEquals(3, cacheB.size());
-
-      Thread.sleep(2000);
-      cacheB.put("5", "Five");
-
-      // "2" should be expired by now
-      Assert.assertFalse(cacheB.containsKey("2"));
-      Assert.assertTrue(cacheB.containsKey("3"));
-      Assert.assertEquals(3, cacheB.size());
-
-      Thread.sleep(4000);
-
-      // "3" and "4" should be expired by now
-      Assert.assertFalse(cacheB.containsKey("3"));
-      Assert.assertFalse(cacheB.containsKey("4"));
-      Assert.assertEquals(0, cacheB.size());
+      // "1" and "2" should be expired by now
+      Assert.assertFalse(cache.containsKey("1"));
+      Assert.assertFalse(cache.containsKey("2"));
+      // "3" and "4" should still be in there
+      Assert.assertTrue(cache.containsKey("3"));
+      Assert.assertTrue(cache.containsKey("4"));
+      Assert.assertEquals(2, cache.size());
     } catch (InterruptedException e) {
       Assert.fail(ExceptionUtils.getRootCauseMessage(e));
     }
   }
 
-  @Test
-  public void testConcurrency() {
-    //
+  @Test(timeout = 30000)
+  // Fail if it runs more than 30 seconds.
+  public void testThreadSafeCache() {
+    long startTime = System.currentTimeMillis();
+    for (int i = 1; i <= ITERATION_COUNT; i++) {
+      // This should finish all iterations without getting stuck.
+      stressTestCache(
+          new MapBackedCache<String, Integer>(new HashMap<String, CachedObject<Integer>>(2)),
+          THREAD_COUNT, i);
+    }
+    long endTime = System.currentTimeMillis();
+    float elapsedTime = (float) (endTime - startTime) / 1000;
+    LOG.info("***** Total elapsed time: {} seconds", elapsedTime);
+  }
+
+  @Ignore
+  @Test(timeout = 30000)
+  // Fail if it runs more than 30 seconds.
+  public void testNonThreadSafeCache() {
+    long startTime = System.currentTimeMillis();
+    for (int i = 1; i <= ITERATION_COUNT; i++) {
+      // This could potentially cause an infinite loop at some point before the final iteration
+      // causing the CPU utilization to spike drastically. This will happen when two threads both
+      // try to put the Nth key-value pair in the map whose current load limit is N-1. Putting the
+      // Nth entry would trigger the rehashing of the map. Both threads know this and would try to
+      // call the internal transfer() method at the same time. This method transfers entries from
+      // old buckets to new buckets during the rehashing process.
+      stressTestCache(
+          new MapBackedCache<String, Integer>(new HashMap<String, CachedObject<Integer>>(2)),
+          THREAD_COUNT, i);
+    }
+    long endTime = System.currentTimeMillis();
+    float elapsedTime = (float) (endTime - startTime) / 1000;
+    LOG.info("***** Total elapsed time: {} seconds", elapsedTime);
+  }
+
+  public void stressTestCache(Cache<String, Integer> cache, int threadCount, int iteration) {
+    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    for (int j = 0; j < threadCount; j++) {
+      // create a new worker thread
+      // and queue it for execution
+      executor.execute(new Runnable() {
+        @Override
+        public void run() {
+          // turn off cache logger so as not to clutter up the log
+          Logger logger = LoggerFactory.getLogger(MapBackedCache.class);
+          if (logger instanceof ch.qos.logback.classic.Logger) {
+            ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.OFF);
+          }
+
+          // access the cache 100K times
+          for (int i = 0; i < 100000; i++) {
+            // simulate read and write operations
+            int randomKey = (int) (Math.random() * 100000);
+            int randomValue = (int) (Math.random() * 100000);
+            cache.get(String.valueOf(randomKey));
+            cache.put(String.valueOf(randomValue), randomValue);
+          }
+        }
+      });
+    }
+
+    long startTime = System.currentTimeMillis();
+    // execute all tasks in the queue
+    // but do not accept any more tasks
+    executor.shutdown();
+    while (!executor.isTerminated()) {
+      // wait until all threads are finished
+    }
+    long endTime = System.currentTimeMillis();
+    float elapsedTime = (float) (endTime - startTime) / 1000;
+    LOG.info("[{}] All threads completed in {} seconds", iteration, elapsedTime);
   }
 }

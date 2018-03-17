@@ -13,16 +13,24 @@ import com.wh.cache.Cache;
  * A simple generic cache backed by a Map.
  * 
  * This cache can be initialized using any java.util.Map but the default implementation uses a
- * ConcurrentHashMap to achieve thread-safety while not adding too much synchronization overhead.
- * 
- * As opposed to Collections.synchronizedMap(Map<K,V>) which locks the entire collection at the
- * object level (i.e. get() and put() methods acquire a lock), a ConcurrentHashMap does the locking
- * at a much finer granularity (i.e. HashMap bucket level). This approach makes it possible to have
+ * ConcurrentHashMap to achieve thread-safety while not adding too much synchronization overhead. As
+ * opposed to Collections.synchronizedMap(Map<K,V>) which locks the entire collection at the object
+ * level (i.e. get() and put() methods acquire a lock), a ConcurrentHashMap does the locking at a
+ * much finer granularity (i.e. HashMap bucket level). This approach makes it possible to have
  * concurrent readers and writers resulting in higher throughput and scalability.
  */
 public class MapBackedCache<K, V> implements Cache<K, V> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MapBackedCache.class);
+  // Give each thread the ability to control the log level
+  // for this class as the logging can be extremely verbose.
+  // See how the concurrency test in TestMapBackedCache.java
+  // is able to turn this off for a particular execution.
+  private static final Logger LOG = (new ThreadLocal<Logger>() {
+    @Override
+    protected Logger initialValue() {
+      return LoggerFactory.getLogger(MapBackedCache.class);
+    }
+  }).get();
 
   private final Map<K, CachedObject<V>> cache;
 
