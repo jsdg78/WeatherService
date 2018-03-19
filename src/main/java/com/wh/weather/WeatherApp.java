@@ -8,7 +8,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import com.wh.cache.Cache;
 import com.wh.cache.internal.MapBackedCache;
-import com.wh.weather.owm.OpenWeatherMapClient;
 
 @SpringBootApplication
 public class WeatherApp {
@@ -20,11 +19,6 @@ public class WeatherApp {
   @Bean
   public Cache<String, String> cache() {
     return new MapBackedCache<String, String>();
-  }
-
-  @Bean
-  public WeatherClient weatherClient() {
-    return new OpenWeatherMapClient();
   }
 
   @Bean

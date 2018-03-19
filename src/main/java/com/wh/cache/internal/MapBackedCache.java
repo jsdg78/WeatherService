@@ -23,8 +23,6 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
 
   // Give each thread the ability to control the log level
   // for this class as the logging can be extremely verbose.
-  // See how the concurrency test in TestMapBackedCache.java
-  // is able to turn this off for a particular execution.
   private static final Logger LOG = (new ThreadLocal<Logger>() {
     @Override
     protected Logger initialValue() {
@@ -60,11 +58,13 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
     LOG.info("Cleaner thread started.");
   }
 
+  @Override
   public boolean containsKey(K key) {
     validateKey(key);
     return cache.containsKey(key);
   }
 
+  @Override
   public V get(K key) {
     validateKey(key);
     CachedObject<V> cachedObj = cache.get(key);
@@ -76,6 +76,7 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
     return cachedObj.getValue();
   }
 
+  @Override
   public void put(K key, V value) {
     validateKey(key);
     validateValue(value);
@@ -85,6 +86,7 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
     LOG.info("Put: {}", cachedObj);
   }
 
+  @Override
   public V remove(K key) {
     validateKey(key);
     CachedObject<V> cachedObj = cache.remove(key);
@@ -92,6 +94,7 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
     return cachedObj.getValue();
   }
 
+  @Override
   public void cleanup() {
     List<K> keysToDelete = new ArrayList<K>();
     long now = System.currentTimeMillis();
@@ -102,18 +105,20 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
         keysToDelete.add(entry.getKey());
       }
     }
-    // and delete each one
+    // and delete each one.
     for (K key : keysToDelete) {
       remove(key);
     }
     LOG.info("Cache has been cleaned.");
   }
 
+  @Override
   public void clear() {
     cache.clear();
     LOG.info("Cache has been cleared.");
   }
 
+  @Override
   public int size() {
     return cache.size();
   }

@@ -8,20 +8,27 @@ public class Wind implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  private final String speed;
-  private final String direction;
+  private Float speed;
+  private Float direction;
 
-  public Wind(String speed, String direction) {
-    this.speed = speed;
-    this.direction = direction;
+  public Wind() {
+    //
   }
 
-  public String getSpeed() {
+  public Float getSpeed() {
     return speed;
   }
 
-  public String getDirection() {
+  public void setSpeed(Float speed) {
+    this.speed = speed;
+  }
+
+  public Float getDirection() {
     return direction;
+  }
+
+  public void setDirection(Float direction) {
+    this.direction = direction;
   }
 
   @Override

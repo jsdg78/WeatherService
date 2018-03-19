@@ -1,6 +1,9 @@
 package com.wh.cache;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.wh.cache.internal.MapBackedCache;
 
 /**
  * A simple generic cache.
@@ -88,6 +91,12 @@ public interface Cache<K, V> {
     // Runnable is a functional interface and therefore can be used
     // as a target for this lambda expression.
     Thread thread = new Thread(() -> {
+      // Turn off cache logger so as not to clutter up the log.
+      Logger logger = LoggerFactory.getLogger(MapBackedCache.class);
+      if (logger instanceof ch.qos.logback.classic.Logger) {
+        ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.OFF);
+      }
+
       while (true) {
         try {
           Thread.sleep(cleanupIntervalMillis);

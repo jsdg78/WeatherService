@@ -17,7 +17,7 @@ public class TestMapBackedCache {
 
   private static final Logger LOG = LoggerFactory.getLogger(TestMapBackedCache.class);
 
-  // thread-safe cache with default TTL (900s) and default cleanup interval (60s)
+  // Thread-safe cache with default TTL (900s) and default cleanup interval (60s).
   private static final Cache<String, String> cache = new MapBackedCache<String, String>();
 
   private static final int THREAD_COUNT = 5;
@@ -25,8 +25,8 @@ public class TestMapBackedCache {
 
   @Before
   public void setUp() {
+    // Test clear().
     cache.clear();
-    // Test clear()
     Assert.assertEquals(0, cache.size());
   }
 
@@ -52,7 +52,7 @@ public class TestMapBackedCache {
 
   @Test
   public void testOperations() throws Exception {
-    // Test put()
+    // Test put().
     cache.put("1", "One");
     Assert.assertEquals(1, cache.size());
     cache.put("2", "Two");
@@ -60,19 +60,19 @@ public class TestMapBackedCache {
     cache.put("4", "Four");
     Assert.assertEquals(4, cache.size());
 
-    // Test containsKey()
+    // Test containsKey().
     Assert.assertTrue(cache.containsKey("1"));
     Assert.assertTrue(cache.containsKey("2"));
     Assert.assertFalse(cache.containsKey("5"));
     Assert.assertFalse(cache.containsKey("6"));
 
-    // Test get()
+    // Test get().
     Assert.assertEquals("One", cache.get("1"));
     Assert.assertEquals("Two", cache.get("2"));
     Assert.assertEquals("Three", cache.get("3"));
     Assert.assertEquals("Four", cache.get("4"));
 
-    // Test remove()
+    // Test remove().
     String value = cache.remove("2");
     Assert.assertEquals("Two", value);
     Assert.assertEquals(3, cache.size());
@@ -84,20 +84,20 @@ public class TestMapBackedCache {
   @Test
   public void testExpiration() {
     try {
-      // cache with very short TTL (5s) and frequent cleanup interval (1s)
+      // Cache with very short TTL (5s) and frequent cleanup interval (1s).
       Cache<String, String> cache = new MapBackedCache<String, String>(5, 1);
 
-      // Test cleanup()
+      // Test cleanup().
       cache.put("1", "One");
       cache.put("2", "Two");
       Thread.sleep(6000);
       cache.put("3", "Three");
       cache.put("4", "Four");
 
-      // "1" and "2" should be expired by now
+      // "1" and "2" should be expired by now.
       Assert.assertFalse(cache.containsKey("1"));
       Assert.assertFalse(cache.containsKey("2"));
-      // "3" and "4" should still be in there
+      // "3" and "4" should still be in there.
       Assert.assertTrue(cache.containsKey("3"));
       Assert.assertTrue(cache.containsKey("4"));
       Assert.assertEquals(2, cache.size());
@@ -146,20 +146,20 @@ public class TestMapBackedCache {
   public void stressTestCache(Cache<String, Integer> cache, int threadCount, int iteration) {
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
     for (int j = 0; j < threadCount; j++) {
-      // create a new worker thread
-      // and queue it for execution
+      // Create a new worker thread
+      // and queue it for execution.
       executor.execute(new Runnable() {
         @Override
         public void run() {
-          // turn off cache logger so as not to clutter up the log
+          // Turn off cache logger so as not to clutter up the log.
           Logger logger = LoggerFactory.getLogger(MapBackedCache.class);
           if (logger instanceof ch.qos.logback.classic.Logger) {
             ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.OFF);
           }
 
-          // access the cache 100K times
+          // Access the cache 100K times.
           for (int i = 0; i < 100000; i++) {
-            // simulate read and write operations
+            // Simulate read and write operations.
             int randomKey = (int) (Math.random() * 100000);
             int randomValue = (int) (Math.random() * 100000);
             cache.get(String.valueOf(randomKey));
@@ -170,11 +170,11 @@ public class TestMapBackedCache {
     }
 
     long startTime = System.currentTimeMillis();
-    // execute all tasks in the queue
-    // but do not accept any more tasks
+    // Execute all tasks in the queue
+    // but do not accept any more tasks.
     executor.shutdown();
     while (!executor.isTerminated()) {
-      // wait until all threads are finished
+      // Wait until all threads are finished.
     }
     long endTime = System.currentTimeMillis();
     float elapsedTime = (float) (endTime - startTime) / 1000;

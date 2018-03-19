@@ -28,12 +28,12 @@ public class WeatherController {
   private Cache<String, String> cache;
 
   @Autowired
-  private WeatherClient weatherClient;
+  private WeatherService weatherService;
 
   @GetMapping("/api/v1/wind/{zipCode}")
   public Wind getWind(@Pattern(regexp = "\\d{5}",
       message = "{zipcode.pattern.invalid}") @PathVariable String zipCode) {
-    return weatherClient.getWind(zipCode);
+    return weatherService.getWind(zipCode);
   }
 
   @DeleteMapping("/api/v1/cache/contents")

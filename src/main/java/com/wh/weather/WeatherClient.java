@@ -1,8 +1,8 @@
 package com.wh.weather;
 
-import com.wh.weather.model.Wind;
+import com.wh.weather.model.Weather;
 
 public interface WeatherClient {
 
-  Wind getWind(String zipCode);
+  Weather getWeather(String zipCode);
 }
