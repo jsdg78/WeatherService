@@ -9,11 +9,12 @@ public class Weather implements Serializable {
   private static final long serialVersionUID = 1L;
 
   private String dateTime;
+  private String city;
+  private String zipCode;
+  private String country;
   private String condition;
   private String description;
-  private Location location;
-  private Temperature temperature;
-  private Float humidity;
+  private Float temperature;
   private Wind wind;
 
   public Weather() {
@@ -26,6 +27,30 @@ public class Weather implements Serializable {
 
   public void setDateTime(String dateTime) {
     this.dateTime = dateTime;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public void setCity(String city) {
+    this.city = city;
+  }
+
+  public String getZipCode() {
+    return zipCode;
+  }
+
+  public void setZipCode(String zipCode) {
+    this.zipCode = zipCode;
+  }
+
+  public String getCountry() {
+    return country;
+  }
+
+  public void setCountry(String country) {
+    this.country = country;
   }
 
   public String getCondition() {
@@ -44,28 +69,16 @@ public class Weather implements Serializable {
     this.description = description;
   }
 
-  public Location getLocation() {
-    return location;
-  }
-
-  public void setLocation(Location location) {
-    this.location = location;
-  }
-
-  public Temperature getTemperature() {
+  public Float getTemperature() {
     return temperature;
   }
 
-  public void setTemperature(Temperature temperature) {
+  public void setTemperature(String temperature) {
+    setTemperature(Float.valueOf(temperature));
+  }
+
+  public void setTemperature(Float temperature) {
     this.temperature = temperature;
-  }
-
-  public Float getHumidity() {
-    return humidity;
-  }
-
-  public void setHumidity(Float humidity) {
-    this.humidity = humidity;
   }
 
   public Wind getWind() {
@@ -79,8 +92,8 @@ public class Weather implements Serializable {
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("dateTime", dateTime)
+        .append("city", city).append("zipCode", zipCode).append("country", country)
         .append("condition", condition).append("description", description)
-        .append("location", location).append("temperature", temperature)
-        .append("humidity", humidity).append("wind", wind).toString();
+        .append("temperature", temperature).append("wind", wind).toString();
   }
 }

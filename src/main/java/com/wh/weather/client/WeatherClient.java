@@ -1,4 +1,4 @@
-package com.wh.weather;
+package com.wh.weather.client;
 
 import com.wh.weather.model.Weather;
 

@@ -1,6 +1,7 @@
-package com.wh.weather.owm;
+package com.wh.weather.client.owm;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -35,8 +36,8 @@ public class WeatherFeed implements Serializable {
   @JsonProperty
   private Map<String, String> main;
 
-  @JsonProperty
-  private List<Map<String, String>> weather;
+  @JsonProperty("weather")
+  private List<Map<String, String>> weathers;
 
   @JsonProperty
   private Map<String, String> wind;
@@ -79,8 +80,8 @@ public class WeatherFeed implements Serializable {
     return main;
   }
 
-  public List<Map<String, String>> getWeather() {
-    return weather;
+  public Map<String, String> getWeather() {
+    return (weathers.isEmpty() ? Collections.emptyMap() : weathers.get(0));
   }
 
   public Map<String, String> getWind() {
@@ -100,7 +101,7 @@ public class WeatherFeed implements Serializable {
     return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("id", id)
         .append("cod", cod).append("name", name).append("dt", dt).append("base", base)
         .append("visibility", visibility).append("coord", coord).append("main", main)
-        .append("weather", weather).append("wind", wind).append("clouds", clouds).append("sys", sys)
-        .toString();
+        .append("weather", weathers).append("wind", wind).append("clouds", clouds)
+        .append("sys", sys).toString();
   }
 }

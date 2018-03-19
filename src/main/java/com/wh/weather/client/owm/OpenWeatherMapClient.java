@@ -1,23 +1,18 @@
-package com.wh.weather.owm;
+package com.wh.weather.client.owm;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.wh.weather.WeatherClient;
-import com.wh.weather.model.Location;
-import com.wh.weather.model.Temperature;
+import com.wh.weather.client.WeatherClient;
 import com.wh.weather.model.Weather;
 import com.wh.weather.model.Wind;
 
-@Component
 public class OpenWeatherMapClient implements WeatherClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(OpenWeatherMapClient.class);
@@ -36,33 +31,24 @@ public class OpenWeatherMapClient implements WeatherClient {
 
   @Override
   public Weather getWeather(String zipCode) {
-    WeatherFeed feed = getWeatherFeed(zipCode);
     Weather weather = new Weather();
+    weather.setZipCode(zipCode);
 
-    List<Map<String, String>> list = feed.getWeather();
-    weather.setDateTime(feed.getDt());
-    weather.setCondition(list.get(0).get("main"));
-    weather.setDescription(list.get(0).get("description"));
-
-    Location location = new Location();
-    Map<String, String> map = feed.getSys();
-    location.setCity(feed.getName());
-    location.setZipCode(zipCode);
-    location.setCountry(map.get("country"));
-    weather.setLocation(location);
-
-    Temperature temperature = new Temperature();
-    map = feed.getMain();
-    temperature.setCurrent(Float.valueOf(map.get("temp")));
-    temperature.setLow(Float.valueOf(map.get("temp_min")));
-    temperature.setHigh(Float.valueOf(map.get("temp_max")));
-    weather.setHumidity(Float.valueOf(map.get("humidity")));
-    weather.setTemperature(temperature);
+    WeatherFeed feed = getWeatherFeed(zipCode);
+    // Use the Java 8.0 java.util.Optional class to provide
+    // null-safety while traversing these nested properties.
+    Optional<WeatherFeed> opt = Optional.ofNullable(feed);
+    opt.map(WeatherFeed::getDt).ifPresent(weather::setDateTime);
+    opt.map(WeatherFeed::getName).ifPresent(weather::setCity);
+    opt.map(WeatherFeed::getSys).map(e -> e.get("country")).ifPresent(weather::setCountry);
+    opt.map(WeatherFeed::getWeather).map(e -> e.get("main")).ifPresent(weather::setCondition);
+    opt.map(WeatherFeed::getWeather).map(e -> e.get("description"))
+        .ifPresent(weather::setDescription);
+    opt.map(WeatherFeed::getMain).map(e -> e.get("temp")).ifPresent(weather::setTemperature);
 
     Wind wind = new Wind();
-    map = feed.getWind();
-    wind.setSpeed(Float.valueOf(map.get("speed")));
-    wind.setDirection(Float.valueOf(map.get("deg")));
+    opt.map(WeatherFeed::getWind).map(e -> e.get("speed")).ifPresent(wind::setSpeed);
+    opt.map(WeatherFeed::getWind).map(e -> e.get("deg")).ifPresent(wind::setDirection);
     weather.setWind(wind);
 
     LOG.info("Current weather for {}: {}", zipCode, weather);
@@ -70,9 +56,13 @@ public class OpenWeatherMapClient implements WeatherClient {
   }
 
   public WeatherFeed getWeatherFeed(String zipCode) {
-    ResponseEntity<WeatherFeed> response =
-        restTemplate.getForEntity(getWeatherURI(zipCode), WeatherFeed.class);
-    return response.getBody();
+    URI url = getWeatherURI(zipCode);
+    LOG.info("Request: {}", url.toString());
+
+    ResponseEntity<WeatherFeed> response = restTemplate.getForEntity(url, WeatherFeed.class);
+    WeatherFeed feed = response.getBody();
+    LOG.info("Response: {}", feed);
+    return feed;
   }
 
   private URI getWeatherURI(String zipCode) {

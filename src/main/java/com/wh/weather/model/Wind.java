@@ -19,12 +19,20 @@ public class Wind implements Serializable {
     return speed;
   }
 
+  public void setSpeed(String speed) {
+    setSpeed(Float.valueOf(speed));
+  }
+
   public void setSpeed(Float speed) {
     this.speed = speed;
   }
 
   public Float getDirection() {
     return direction;
+  }
+
+  public void setDirection(String direction) {
+    setDirection(Float.valueOf(direction));
   }
 
   public void setDirection(Float direction) {

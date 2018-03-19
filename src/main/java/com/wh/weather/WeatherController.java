@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import com.wh.cache.Cache;
+import com.wh.weather.model.Weather;
 import com.wh.weather.model.Wind;
 
 @Validated
@@ -25,7 +26,7 @@ import com.wh.weather.model.Wind;
 public class WeatherController {
 
   @Autowired
-  private Cache<String, String> cache;
+  private Cache<String, Weather> cache;
 
   @Autowired
   private WeatherService weatherService;
