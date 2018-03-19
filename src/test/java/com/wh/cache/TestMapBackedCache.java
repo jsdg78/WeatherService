@@ -106,6 +106,7 @@ public class TestMapBackedCache {
     }
   }
 
+  @Ignore
   @Test(timeout = 30000)
   // Fail if it runs more than 30 seconds.
   public void testThreadSafeCache() {

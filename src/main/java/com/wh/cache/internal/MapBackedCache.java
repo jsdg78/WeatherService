@@ -56,8 +56,8 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
     this.timeToLiveMillis = timeToLiveSecs * 1000;
     this.cleanupIntervalMillis = cleanupIntervalSecs * 1000;
 
-    LOG.info("Starting cleanup task...");
-    startCleanupTask(cleanupIntervalMillis);
+    startCleanerThread(cleanupIntervalMillis);
+    LOG.info("Cleaner thread started.");
   }
 
   public boolean containsKey(K key) {
@@ -102,15 +102,16 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
         keysToDelete.add(entry.getKey());
       }
     }
-    LOG.info("Cleaning up cache...");
     // and delete each one
     for (K key : keysToDelete) {
       remove(key);
     }
+    LOG.info("Cache has been cleaned.");
   }
 
   public void clear() {
     cache.clear();
+    LOG.info("Cache has been cleared.");
   }
 
   public int size() {

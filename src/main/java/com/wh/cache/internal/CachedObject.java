@@ -7,15 +7,16 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * A wrapper class for an object being cached which includes the timestamp of when the object was
- * last accessed in the cache.
+ * A wrapper class for an object being cached.
  */
 public class CachedObject<V> {
 
   private static final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+  /** The underlying object being cached. */
   private V value;
 
+  /** Timestamp of when this object was last accessed from the cache. */
   private long lastAccessed;
 
   protected CachedObject(V value) {

@@ -14,45 +14,44 @@ public interface Cache<K, V> {
   static final int DEFAULT_CLEANUP_INTERVAL_SECS = 60;
 
   /**
-   * Returns true if this cache contains a mapping for the specified key.
+   * Returns true if this cache contains an entry for the specified key.
    */
   boolean containsKey(K key);
 
   /**
-   * Returns the value to which the specified key is mapped, or null if this cache contains no
-   * mapping for the key.
+   * Returns the value to which the specified key is mapped, or null if this cache contains no entry
+   * for the key.
    */
   V get(K key);
 
   /**
    * Associates the specified value with the specified key in this cache. If the cache previously
-   * contained a mapping for the key, the old value is replaced by the specified value.
+   * contained an entry for the key, the old value is replaced by the specified value.
    */
   void put(K key, V value);
 
   /**
-   * Removes the mapping for a key from this cache if it is present.
+   * Removes the entry for a key from this cache if present.
    */
   V remove(K key);
 
   /**
-   * Removes all expired mappings from this cache.
+   * Removes all expired entries from this cache.
    */
   void cleanup();
 
   /**
-   * Removes all of the mappings from this cache.
+   * Removes all of the entries from this cache.
    */
   void clear();
 
   /**
-   * Returns the number of key-value mappings in this cache.
+   * Returns the number of entries in this cache.
    */
   int size();
 
   // In Java 8.0, interfaces have been enhanced to provide method implementations
-  // using the default and static keywords (almost like an abstract class but with
-  // the advantage of multiple inheritance).
+  // using the default and static keywords (almost like an abstract class).
   // The following are default methods for the Cache which the implementing class
   // can override if necessary (since declared as default and not static).
   /**
@@ -84,7 +83,7 @@ public interface Cache<K, V> {
   /**
    * Starts the thread that cleans up the cache at regular intervals.
    */
-  default void startCleanupTask(final long cleanupIntervalMillis) {
+  default void startCleanerThread(final long cleanupIntervalMillis) {
     // Another new feature of Java 8.0 are functional interfaces.
     // Runnable is a functional interface and therefore can be used
     // as a target for this lambda expression.
