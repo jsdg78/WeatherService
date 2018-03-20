@@ -21,6 +21,23 @@ import com.wh.cache.Cache;
 import com.wh.weather.model.Weather;
 import com.wh.weather.model.Wind;
 
+/**
+ * A Restful API that provides weather-related information.
+ * 
+ * <pre>
+ * Currently, the business is only asking for the 
+ * current wind conditions for a given zip code.
+ * 
+ * For example:
+ * GET: /api/v1/wind/17602
+ * Success Response: {"speed":3.98,"direction":54.02}
+ * Error Response: {"errors":["Zip code should be 5 digits."]}
+ * 
+ * To clear the cache:
+ * DELETE: /api/v1/cache/contents
+ * Response: true|false
+ * </pre>
+ */
 @Validated
 @RestController
 public class WeatherController {
@@ -32,6 +49,7 @@ public class WeatherController {
   private WeatherService weatherService;
 
   @GetMapping("/api/v1/wind/{zipCode}")
+  // First validate the zip code input.
   public Wind getWind(@Pattern(regexp = "\\d{5}",
       message = "{zipcode.pattern.invalid}") @PathVariable String zipCode) {
     return weatherService.getWind(zipCode);
@@ -46,6 +64,8 @@ public class WeatherController {
   @ExceptionHandler(ConstraintViolationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public Map<String, List<String>> handle(ConstraintViolationException e) {
+    // Catch ConstraintViolationException and return
+    // a list of error messages in JSON format.
     return getErrors(e.getConstraintViolations());
   }
 

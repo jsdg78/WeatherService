@@ -1,17 +1,12 @@
 package com.wh.cache;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
 
 /**
  * A simple generic cache.
  */
 public interface Cache<K, V> {
-
-  /** The default time-to-live for elements in the cache (15 minutes). */
-  static final int DEFAULT_TTL_SECS = 900;
-
-  /** The default time interval for removing expired elements (every minute). */
-  static final int DEFAULT_CLEANUP_INTERVAL_SECS = 60;
 
   /**
    * Returns true if this cache contains an entry for the specified key.
@@ -83,13 +78,15 @@ public interface Cache<K, V> {
   /**
    * Starts the thread that cleans up the cache at regular intervals.
    */
-  default void startCleanerThread(final long cleanupIntervalMillis) {
+  default void startCleanerThread(final long cleanupIntervalMillis, Logger logger) {
     Thread thread = new Thread(() -> {
       while (true) {
         try {
           Thread.sleep(cleanupIntervalMillis);
         } catch (InterruptedException e) {
-          e.printStackTrace();
+          logger.warn("Cleaner thread interrupted.", e);
+          // Restore the interrupted state.
+          Thread.currentThread().interrupt();
         }
         cleanup();
       }

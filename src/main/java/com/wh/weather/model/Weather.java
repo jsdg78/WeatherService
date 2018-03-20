@@ -4,6 +4,12 @@ import java.io.Serializable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+/**
+ * Model class that represents the weather.
+ * 
+ * A particular weather API provider might provide a lot of data but our company is only interested
+ * in these few pieces of information.
+ */
 public class Weather implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -91,7 +97,7 @@ public class Weather implements Serializable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("dateTime", dateTime)
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("dateTime", dateTime)
         .append("city", city).append("zipCode", zipCode).append("country", country)
         .append("condition", condition).append("description", description)
         .append("temperature", temperature).append("wind", wind).toString();

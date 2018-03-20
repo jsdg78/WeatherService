@@ -18,17 +18,23 @@ import com.wh.cache.Cache;
  * level (i.e. get() and put() methods acquire a lock), a ConcurrentHashMap does the locking at a
  * much finer granularity (i.e. HashMap bucket level). This approach makes it possible to have
  * concurrent readers and writers resulting in higher throughput and scalability.
+ * 
+ * This implementation also starts a single daemon thread upon creation. This thread is responsibe
+ * for sweeping the cache at fixed intervals remove entries that have expired, i.e. entries that
+ * have not been accessed from the cache for more than the configured time-to-live duration.
  */
 public class MapBackedCache<K, V> implements Cache<K, V> {
 
+  /** The default time-to-live for elements in the cache (15 minutes). */
+  public static final int DEFAULT_TTL_SECS = 900;
+
+  /** The default time interval for removing expired elements (every minute). */
+  public static final int DEFAULT_CLEANUP_INTERVAL_SECS = 60;
+
   // Give each thread the ability to control the log level
   // for this class as the logging can be extremely verbose.
-  private static final Logger LOG = (new ThreadLocal<Logger>() {
-    @Override
-    protected Logger initialValue() {
-      return LoggerFactory.getLogger(MapBackedCache.class);
-    }
-  }).get();
+  private static final Logger LOG =
+      ThreadLocal.withInitial(() -> LoggerFactory.getLogger(MapBackedCache.class)).get();
 
   private final Map<K, CachedObject<V>> cache;
 
@@ -41,7 +47,7 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
   }
 
   public MapBackedCache(Map<K, CachedObject<V>> cache) {
-    this(cache, Cache.DEFAULT_TTL_SECS, Cache.DEFAULT_CLEANUP_INTERVAL_SECS);
+    this(cache, DEFAULT_TTL_SECS, DEFAULT_CLEANUP_INTERVAL_SECS);
   }
 
   public MapBackedCache(int timeToLiveSecs, int cleanupIntervalSecs) {
@@ -51,10 +57,10 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
   public MapBackedCache(Map<K, CachedObject<V>> cache, int timeToLiveSecs,
       int cleanupIntervalSecs) {
     this.cache = cache;
-    this.timeToLiveMillis = timeToLiveSecs * 1000;
-    this.cleanupIntervalMillis = cleanupIntervalSecs * 1000;
+    this.timeToLiveMillis = timeToLiveSecs * 1000L;
+    this.cleanupIntervalMillis = cleanupIntervalSecs * 1000L;
 
-    startCleanerThread(cleanupIntervalMillis);
+    startCleanerThread(cleanupIntervalMillis, LOG);
     LOG.info("Cleaner thread started.");
   }
 
@@ -71,8 +77,8 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
     if (cachedObj == null) {
       return null;
     }
-    cachedObj.resetLastAccessed();
-    LOG.info("Get: {}", cachedObj);
+    cachedObj.setLastAccessed();
+    LOG.info("{}", cachedObj);
     return cachedObj.getValue();
   }
 
@@ -80,23 +86,23 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
   public void put(K key, V value) {
     validateKey(key);
     validateValue(value);
-    CachedObject<V> cachedObj = new CachedObject<V>(value);
-    cachedObj.resetLastAccessed();
+    CachedObject<V> cachedObj = new CachedObject<>(value);
+    cachedObj.setLastAccessed();
     cache.put(key, cachedObj);
-    LOG.info("Put: {}", cachedObj);
+    LOG.info("{}", cachedObj);
   }
 
   @Override
   public V remove(K key) {
     validateKey(key);
     CachedObject<V> cachedObj = cache.remove(key);
-    LOG.info("Remove: {}", cachedObj);
+    LOG.info("{}", cachedObj);
     return cachedObj.getValue();
   }
 
   @Override
   public void cleanup() {
-    List<K> keysToDelete = new ArrayList<K>();
+    List<K> keysToDelete = new ArrayList<>();
     long now = System.currentTimeMillis();
     // Collect all keys whose values have expired...
     for (Entry<K, CachedObject<V>> entry : cache.entrySet()) {
@@ -109,7 +115,7 @@ public class MapBackedCache<K, V> implements Cache<K, V> {
     for (K key : keysToDelete) {
       remove(key);
     }
-    LOG.info("Cache has been cleaned.");
+    LOG.info("Expired {} objects.", keysToDelete.size());
   }
 
   @Override

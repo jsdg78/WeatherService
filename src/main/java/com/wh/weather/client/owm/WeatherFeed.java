@@ -8,6 +8,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Deserialized JSON response from the OpenWeatherMap API.
+ */
 public class WeatherFeed implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -98,7 +101,7 @@ public class WeatherFeed implements Serializable {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE).append("id", id)
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("id", id)
         .append("cod", cod).append("name", name).append("dt", dt).append("base", base)
         .append("visibility", visibility).append("coord", coord).append("main", main)
         .append("weather", weathers).append("wind", wind).append("clouds", clouds)

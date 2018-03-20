@@ -2,7 +2,7 @@ package com.wh.weather.client;
 
 import com.wh.weather.model.Weather;
 
-public class WeatherClientDecorator implements WeatherClient {
+public abstract class WeatherClientDecorator implements WeatherClient {
 
   protected WeatherClient weatherClient;
 

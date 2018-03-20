@@ -1,10 +1,14 @@
 package com.wh.cache;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,7 +31,7 @@ public class TestMapBackedCache {
   public void setUp() {
     // Test clear().
     cache.clear();
-    Assert.assertEquals(0, cache.size());
+    assertEquals(0, cache.size());
   }
 
   @Test(expected = NullPointerException.class)
@@ -54,33 +58,34 @@ public class TestMapBackedCache {
   public void testOperations() throws Exception {
     // Test put().
     cache.put("1", "One");
-    Assert.assertEquals(1, cache.size());
+    assertEquals(1, cache.size());
     cache.put("2", "Two");
     cache.put("3", "Three");
     cache.put("4", "Four");
-    Assert.assertEquals(4, cache.size());
+    assertEquals(4, cache.size());
 
     // Test containsKey().
-    Assert.assertTrue(cache.containsKey("1"));
-    Assert.assertTrue(cache.containsKey("2"));
-    Assert.assertFalse(cache.containsKey("5"));
-    Assert.assertFalse(cache.containsKey("6"));
+    assertTrue(cache.containsKey("1"));
+    assertTrue(cache.containsKey("2"));
+    assertFalse(cache.containsKey("5"));
+    assertFalse(cache.containsKey("6"));
 
     // Test get().
-    Assert.assertEquals("One", cache.get("1"));
-    Assert.assertEquals("Two", cache.get("2"));
-    Assert.assertEquals("Three", cache.get("3"));
-    Assert.assertEquals("Four", cache.get("4"));
+    assertEquals("One", cache.get("1"));
+    assertEquals("Two", cache.get("2"));
+    assertEquals("Three", cache.get("3"));
+    assertEquals("Four", cache.get("4"));
 
     // Test remove().
     String value = cache.remove("2");
-    Assert.assertEquals("Two", value);
-    Assert.assertEquals(3, cache.size());
+    assertEquals("Two", value);
+    assertEquals(3, cache.size());
     value = cache.remove("3");
-    Assert.assertEquals("Three", value);
-    Assert.assertEquals(2, cache.size());
+    assertEquals("Three", value);
+    assertEquals(2, cache.size());
   }
 
+  @Ignore
   @Test
   public void testExpiration() {
     try {
@@ -90,19 +95,19 @@ public class TestMapBackedCache {
       // Test cleanup().
       cache.put("1", "One");
       cache.put("2", "Two");
-      Thread.sleep(6000);
+      TimeUnit.SECONDS.sleep(7);
       cache.put("3", "Three");
       cache.put("4", "Four");
 
       // "1" and "2" should be expired by now.
-      Assert.assertFalse(cache.containsKey("1"));
-      Assert.assertFalse(cache.containsKey("2"));
+      assertFalse(cache.containsKey("1"));
+      assertFalse(cache.containsKey("2"));
       // "3" and "4" should still be in there.
-      Assert.assertTrue(cache.containsKey("3"));
-      Assert.assertTrue(cache.containsKey("4"));
-      Assert.assertEquals(2, cache.size());
+      assertTrue(cache.containsKey("3"));
+      assertTrue(cache.containsKey("4"));
+      assertEquals(2, cache.size());
     } catch (InterruptedException e) {
-      Assert.fail(ExceptionUtils.getRootCauseMessage(e));
+      fail(ExceptionUtils.getRootCauseMessage(e));
     }
   }
 

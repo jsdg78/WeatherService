@@ -57,7 +57,7 @@ public class OpenWeatherMapClient implements WeatherClient {
 
   public WeatherFeed getWeatherFeed(String zipCode) {
     URI url = getWeatherURI(zipCode);
-    LOG.info("Request: {}", url.toString());
+    LOG.info("Request: {}", url);
 
     ResponseEntity<WeatherFeed> response = restTemplate.getForEntity(url, WeatherFeed.class);
     WeatherFeed feed = response.getBody();

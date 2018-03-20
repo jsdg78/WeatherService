@@ -7,11 +7,14 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * A wrapper class for an object being cached.
+ * A wrapper class for an object being cached which includes a timestamp of when that object was
+ * last accessed from the cache. It provides a setLastAccessed() method that a particular cache
+ * implementation can call to update the object timestamp when it gets put into and everytime it
+ * gets retrieved from the cache, thus making it stay inside the cache longer.
  */
 public class CachedObject<V> {
 
-  private static final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  private final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   /** The underlying object being cached. */
   private V value;
@@ -31,17 +34,17 @@ public class CachedObject<V> {
     return lastAccessed;
   }
 
-  protected void resetLastAccessed() {
+  protected void setLastAccessed() {
     this.lastAccessed = System.currentTimeMillis();
   }
 
-  private static String formatTimeMillis(long lastAccessed) {
+  private String formatLastAccessed() {
     return (sdf.format(new Date(lastAccessed)));
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("value", value)
-        .append("lastAccessed", formatTimeMillis(lastAccessed)).toString();
+        .append("lastAccessed", formatLastAccessed()).toString();
   }
 }
