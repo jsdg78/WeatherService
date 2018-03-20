@@ -13,10 +13,14 @@ import com.wh.weather.client.WeatherClient;
 import com.wh.weather.model.Weather;
 import com.wh.weather.model.Wind;
 
+/**
+ * A weather client that uses the OpenWeatherMap API.
+ */
 public class OpenWeatherMapClient implements WeatherClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(OpenWeatherMapClient.class);
 
+  // Simplify interaction with REST endpoint.
   private final RestTemplate restTemplate;
 
   @Value("${openweathermap.api.url}")
@@ -29,6 +33,12 @@ public class OpenWeatherMapClient implements WeatherClient {
     this.restTemplate = (new RestTemplateBuilder()).build();
   }
 
+  /**
+   * Returns current weather data given the zip code.
+   * 
+   * This method calls the OpenWeatherMap API and translates the resulting WeatherFeed object
+   * (vendor-specific) to our company's Weather object which can then be used in our interfaces.
+   */
   @Override
   public Weather getWeather(String zipCode) {
     Weather weather = new Weather();
@@ -59,6 +69,8 @@ public class OpenWeatherMapClient implements WeatherClient {
     URI url = getWeatherURI(zipCode);
     LOG.info("Request: {}", url);
 
+    // Call the OpenWeatherMap API and deserialize
+    // the JSON response to our WeatherFeed object.
     ResponseEntity<WeatherFeed> response = restTemplate.getForEntity(url, WeatherFeed.class);
     WeatherFeed feed = response.getBody();
     LOG.info("Response: {}", feed);
@@ -66,6 +78,7 @@ public class OpenWeatherMapClient implements WeatherClient {
   }
 
   private URI getWeatherURI(String zipCode) {
+    // Expand the base URL to include our query parameters.
     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiBaseUrl + "/weather")
         .queryParam("zip", zipCode).queryParam("APPID", apiKey);
     return builder.build().encode().toUri();

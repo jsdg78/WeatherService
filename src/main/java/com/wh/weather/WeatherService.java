@@ -3,7 +3,7 @@ package com.wh.weather;
 import com.wh.weather.model.Wind;
 
 /**
- * A simple service for getting weather-related information.
+ * A service for getting weather-related information.
  */
 public interface WeatherService {
 

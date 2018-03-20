@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Deserialized JSON response from the OpenWeatherMap API.
+ * Data Transfer Object for the OpenWeatherMap API.
  */
 public class WeatherFeed implements Serializable {
 
