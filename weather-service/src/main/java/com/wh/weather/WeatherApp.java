@@ -17,6 +17,16 @@ import com.wh.weather.model.Weather;
  * This is the entry point to our Spring Boot application. Note that the SpringBootApplication
  * annotation is equivalent to declaring Configuration, EnableAutoConfiguration and ComponentScan
  * annotations all at the same time.
+ * 
+ * <pre>
+ * USAGE
+ * =====
+ * Using Java:
+ * $ java -jar target\weather-service-1.0.0-SNAPSHOT.jar
+ * 
+ * Using Maven:
+ * $ mvn spring-boot:run
+ * </pre>
  */
 @SpringBootApplication
 public class WeatherApp {

@@ -20,7 +20,6 @@ public class OpenWeatherMapClient implements WeatherClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(OpenWeatherMapClient.class);
 
-  // Simplify interaction with REST endpoint.
   private final RestTemplate restTemplate;
 
   @Value("${openweathermap.api.url}")

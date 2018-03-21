@@ -28,13 +28,15 @@ import com.wh.weather.model.Wind;
  * Currently, the business is only asking for the 
  * current wind conditions for a given zip code.
  * 
- * For example:
- * GET: /api/v1/wind/17602
+ * USAGE
+ * ===== 
+ * To get wind data:
+ * $ curl -X GET http://localhost:8080/api/v1/wind/17602
  * Success Response: {"speed":3.98,"direction":54.02}
  * Error Response: {"errors":["Zip code should be 5 digits."]}
  * 
  * To clear the cache:
- * DELETE: /api/v1/cache/contents
+ * $ curl -X DELETE http://localhost:8080/api/v1/cache/contents
  * Response: true|false
  * </pre>
  */
