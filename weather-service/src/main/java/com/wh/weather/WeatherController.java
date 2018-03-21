@@ -30,12 +30,12 @@ import com.wh.weather.model.Wind;
  * 
  * USAGE
  * ===== 
- * To get wind data:
+ * To get wind data using curl:
  * $ curl -X GET http://localhost:8080/api/v1/wind/17602
  * Success Response: {"speed":3.98,"direction":54.02}
  * Error Response: {"errors":["Zip code should be 5 digits."]}
  * 
- * To clear the cache:
+ * To clear the cache using curl:
  * $ curl -X DELETE http://localhost:8080/api/v1/cache/contents
  * Response: true|false
  * </pre>
