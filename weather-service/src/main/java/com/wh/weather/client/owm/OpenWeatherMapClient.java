@@ -68,8 +68,7 @@ public class OpenWeatherMapClient implements WeatherClient {
     URI url = getWeatherURI(zipCode);
     LOG.info("Request: {}", url);
 
-    // Call the OpenWeatherMap API and deserialize
-    // the JSON response to our WeatherFeed object.
+    // Call the OpenWeatherMap API and deserialize the JSON response to our WeatherFeed object.
     ResponseEntity<WeatherFeed> response = restTemplate.getForEntity(url, WeatherFeed.class);
     WeatherFeed feed = response.getBody();
     LOG.info("Response: {}", feed);

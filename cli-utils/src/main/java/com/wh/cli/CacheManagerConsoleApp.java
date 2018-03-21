@@ -46,7 +46,7 @@ public class CacheManagerConsoleApp implements ApplicationRunner {
   }
 
   @Override
-  public void run(ApplicationArguments args) throws Exception {
+  public void run(ApplicationArguments args) {
     String operation = args.getOptionNames().stream().findFirst().orElse(null);
     String url = args.getNonOptionArgs().stream().findFirst().orElse(null);
     if (("D".equalsIgnoreCase(operation) || "delete".equalsIgnoreCase(operation))

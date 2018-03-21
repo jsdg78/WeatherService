@@ -1,5 +1,6 @@
 package com.wh.weather.client;
 
+import org.apache.commons.lang3.Validate;
 import com.wh.weather.model.Weather;
 
 /**
@@ -11,7 +12,7 @@ public abstract class WeatherClientDecorator implements WeatherClient {
   protected WeatherClient weatherClient;
 
   public WeatherClientDecorator(WeatherClient weatherClient) {
-    this.weatherClient = weatherClient;
+    this.weatherClient = Validate.notNull(weatherClient, "weatherClient is null");
   }
 
   @Override

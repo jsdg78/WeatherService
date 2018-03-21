@@ -34,6 +34,9 @@ public class WeatherFeed implements Serializable {
   private String visibility;
 
   @JsonProperty
+  private String message;
+
+  @JsonProperty
   private Map<String, String> coord;
 
   @JsonProperty
@@ -75,6 +78,14 @@ public class WeatherFeed implements Serializable {
     return visibility;
   }
 
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
   public Map<String, String> getCoord() {
     return coord;
   }
@@ -84,7 +95,7 @@ public class WeatherFeed implements Serializable {
   }
 
   public Map<String, String> getWeather() {
-    return (weathers.isEmpty() ? Collections.emptyMap() : weathers.get(0));
+    return (weathers == null || weathers.isEmpty() ? Collections.emptyMap() : weathers.get(0));
   }
 
   public Map<String, String> getWind() {
@@ -103,8 +114,8 @@ public class WeatherFeed implements Serializable {
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("id", id)
         .append("cod", cod).append("name", name).append("dt", dt).append("base", base)
-        .append("visibility", visibility).append("coord", coord).append("main", main)
-        .append("weather", weathers).append("wind", wind).append("clouds", clouds)
-        .append("sys", sys).toString();
+        .append("visibility", visibility).append("message", message).append("coord", coord)
+        .append("main", main).append("weather", weathers).append("wind", wind)
+        .append("clouds", clouds).append("sys", sys).toString();
   }
 }

@@ -55,7 +55,7 @@ public class TestMapBackedCache {
   }
 
   @Test
-  public void testOperations() throws Exception {
+  public void testOperations() {
     // Test put().
     cache.put("1", "One");
     assertEquals(1, cache.size());

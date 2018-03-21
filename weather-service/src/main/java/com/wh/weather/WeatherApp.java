@@ -49,7 +49,7 @@ public class WeatherApp {
   @Bean
   public WeatherClient cachingWeatherClient() {
     // Decorate the basic client with caching features.
-    return new CachingWeatherClient(weatherClient());
+    return new CachingWeatherClient(weatherClient(), cache());
   }
 
   @Bean
