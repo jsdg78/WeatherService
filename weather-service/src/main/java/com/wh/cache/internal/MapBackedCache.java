@@ -19,8 +19,8 @@ import com.wh.cache.Cache;
  * much finer granularity (i.e. HashMap bucket level). This approach makes it possible to have
  * concurrent readers and writers resulting in higher throughput and scalability.
  * 
- * This implementation also starts a single daemon thread upon creation. This thread is responsibe
- * for sweeping the cache at fixed intervals remove entries that have expired, i.e. entries that
+ * This implementation also starts a single daemon thread upon creation. This thread is responsible
+ * for sweeping the cache at fixed intervals to remove entries that have expired, i.e. entries that
  * have not been accessed from the cache for more than the configured time-to-live duration.
  */
 public class MapBackedCache<K, V> implements Cache<K, V> {
