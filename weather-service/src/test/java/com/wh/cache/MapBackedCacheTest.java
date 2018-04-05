@@ -4,22 +4,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.wh.cache.internal.CachedObject;
 import com.wh.cache.internal.MapBackedCache;
 
-public class TestMapBackedCache {
+public class MapBackedCacheTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TestMapBackedCache.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MapBackedCacheTest.class);
 
   // Thread-safe cache with default TTL (900s) and default cleanup interval (60s).
   private static final Cache<String, String> cache = new MapBackedCache<String, String>();
@@ -119,7 +123,7 @@ public class TestMapBackedCache {
     for (int i = 1; i <= ITERATION_COUNT; i++) {
       // This should finish all iterations without getting stuck.
       stressTestCache(
-          new MapBackedCache<String, Integer>(new HashMap<String, CachedObject<Integer>>(2)),
+          new MapBackedCache<String, Integer>(new ConcurrentHashMap<String, CachedObject<Integer>>(2)),
           THREAD_COUNT, i);
     }
     long endTime = System.currentTimeMillis();
