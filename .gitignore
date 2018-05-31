@@ -1,6 +1,9 @@
 target/
 logs/
 bin/
+.DS_Store
+.idea
+.iml
 .classpath
 .settings
 .project
