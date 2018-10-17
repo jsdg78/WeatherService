@@ -32,4 +32,4 @@ A web service that returns the current wind conditions for a given zip code.
 * Execute the project JAR.
 * The wind resource should now be accessible by running a curl command:
 
-`$ curl -x http://localhost:8080/api/v1/wind/89101`
+`$ curl -x http://localhost:8080/api/v1/wind/89052`
